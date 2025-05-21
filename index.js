@@ -47,20 +47,58 @@ client.on('message', async (topic, message) => {
 // --- Telegram Bot Setup ---
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
+// Track active users
+const activeUsers = new Set();
+
+// --- /start command ---
+bot.start((ctx) => {
+  activeUsers.add(ctx.chat.id);
+
+  ctx.reply('👋 Selamat datang! Pilih menu di bawah:', {
+    reply_markup: {
+      keyboard: [['/lokasi', '/riwayat'], ['/stop']],
+      resize_keyboard: true,
+      one_time_keyboard: false
+    }
+  });
+});
+
+// --- /stop command ---
+bot.command('stop', (ctx) => {
+  activeUsers.delete(ctx.chat.id);
+
+  ctx.reply('❌ Kamu telah menghentikan akses bot.', {
+    reply_markup: {
+      keyboard: [['/start']],
+      resize_keyboard: true
+    }
+  });
+});
+
+// --- /lokasi command ---
 bot.command('lokasi', async (ctx) => {
+  if (!activeUsers.has(ctx.chat.id)) return;
+
   const data = await GpsData.findOne().sort({ waktu: -1 });
   if (!data) return ctx.reply('⚠️ Tidak ada data lokasi');
+
   return ctx.replyWithLocation(data.latitude, data.longitude);
 });
 
+// --- /riwayat command ---
 bot.command('riwayat', async (ctx) => {
+  if (!activeUsers.has(ctx.chat.id)) return;
+
   const data = await GpsData.find().sort({ waktu: -1 }).limit(5);
   if (!data.length) return ctx.reply('⚠️ Tidak ada riwayat lokasi');
+
   let msg = '📍 Riwayat Lokasi:\n\n';
   data.forEach((d, i) => {
     msg += `${i + 1}. Lat: ${d.latitude}, Long: ${d.longitude}, 🕒 ${d.waktu.toLocaleString()}\n`;
   });
+
   ctx.reply(msg);
 });
 
+// --- Launch bot ---
 bot.launch().then(() => console.log('🤖 Telegram Bot ready'));
