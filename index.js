@@ -40,6 +40,10 @@ client.on('connect', () => {
 client.on('message', async (topic, message) => {
   try {
     const data = JSON.parse(message.toString());
+    if (typeof data !== 'object' || data === null) {
+      throw new Error('MQTT payload is not an object');
+    }
+
     console.log('📥 Received from MQTT:', data);
     await new SensorData(data).save();
     console.log('✅ Data saved to MongoDB');
@@ -47,3 +51,4 @@ client.on('message', async (topic, message) => {
     console.error('❌ Error processing message:', err.message);
   }
 });
+
