@@ -8,3 +8,5 @@
     "mongoose": "^7.0.0"
   }
 }
+
+npm install mqtt
