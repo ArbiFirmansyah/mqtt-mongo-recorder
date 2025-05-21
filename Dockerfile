@@ -1,5 +1,7 @@
-FROM google/nodejs-runtime
-MAINTAINER Dennis de Greef <github@link0.net>
+FROM node:18-alpine
 
+WORKDIR /app
+COPY . .
 
-
+RUN npm install
+CMD ["npm", "start"]
