@@ -53,16 +53,20 @@ const activeUsers = new Set();
 // === Cleanup webhook before polling ===
 (async () => {
   try {
-    const res = await axios.get(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/deleteWebhook`);
-    if (res.data.ok) {
-      console.log('🧹 Webhook removed, safe to use polling');
-      await bot.launch();
-      console.log('🤖 Telegram Bot started');
-    } else {
-      throw new Error('Failed to delete webhook');
-    }
+    // Pastikan webhook dihapus agar tidak bentrok
+    await bot.telegram.deleteWebhook();
+    console.log('✅ Webhook deleted');
+
+    // Luncurkan polling setelah webhook dihapus
+    await bot.launch();
+    console.log('🤖 Telegram Bot started');
   } catch (err) {
-    console.error('❌ Failed to initialize bot:', err.message);
+    if (err.description?.includes('Conflict')) {
+      console.error('❗ Bot conflict: another instance is running.');
+    } else {
+      console.error('❌ Telegram Bot Error:', err);
+    }
+    process.exit(1); // keluar supaya Railway tidak menjalankan bot yang gagal
   }
 })();
 
