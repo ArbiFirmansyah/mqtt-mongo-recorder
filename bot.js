@@ -74,10 +74,10 @@ bot.command('stop', (ctx) => {
 // === /lokasi command ===
 bot.command('lokasi', async (ctx) => {
   if (!activeUsers.has(ctx.chat.id)) return;
-
+  let msg = '📍 Lokasi Terakhir Sepeda Motor Anda:\n\n';
   const latest = await GpsData.findOne().sort({ waktu: -1 });
   if (!latest) return ctx.reply('⚠️ Tidak ada data lokasi.');
-
+  ctx.reply(msg);
   ctx.replyWithLocation(latest.latitude, latest.longitude);
 });
 
