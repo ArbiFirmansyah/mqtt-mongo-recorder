@@ -5,12 +5,9 @@ import mqtt from 'mqtt';
 dotenv.config();
 
 // --- 1. Connect MongoDB ---
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ MongoDB connected'))
-.catch(err => console.error('❌ MongoDB connection error:', err.message));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('✅ MongoDB connected'))
+  .catch(err => console.error('❌ MongoDB connection error:', err.message));
 
 // --- 2. MongoDB Schema ---
 const SensorData = mongoose.model('SensorData', new mongoose.Schema({
