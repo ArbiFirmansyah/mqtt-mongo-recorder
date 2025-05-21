@@ -10,6 +10,6 @@
     },
     "repository" : {
         "type" : "git",
-        "url" : "https://github.com/dennisdegreef/mqtt-mongo-recorder.git"
+        "url" : "https://github.com/firdaus21tk/mqtt-mongo-recorder.git"
     }
 }
