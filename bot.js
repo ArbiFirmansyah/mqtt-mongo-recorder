@@ -2,6 +2,7 @@ import mqtt from 'mqtt';
 import mongoose from 'mongoose';
 import { Telegraf } from 'telegraf';
 import dotenv from 'dotenv';
+import axios from 'axios';
 
 dotenv.config();
 
@@ -49,6 +50,22 @@ mqttClient.on('message', async (topic, message) => {
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const activeUsers = new Set();
 
+// === Cleanup webhook before polling ===
+(async () => {
+  try {
+    const res = await axios.get(`https://api.telegram.org/bot${process.env.BOT_TOKEN}/deleteWebhook`);
+    if (res.data.ok) {
+      console.log('🧹 Webhook removed, safe to use polling');
+      await bot.launch();
+      console.log('🤖 Telegram Bot started');
+    } else {
+      throw new Error('Failed to delete webhook');
+    }
+  } catch (err) {
+    console.error('❌ Failed to initialize bot:', err.message);
+  }
+})();
+
 // === /start command ===
 bot.start((ctx) => {
   activeUsers.add(ctx.chat.id);
@@ -74,11 +91,13 @@ bot.command('stop', (ctx) => {
 // === /lokasi command ===
 bot.command('lokasi', async (ctx) => {
   if (!activeUsers.has(ctx.chat.id)) return;
-  let msg = '📍 Lokasi Terakhir Sepeda Motor Anda:\n\n';
+
   const latest = await GpsData.findOne().sort({ waktu: -1 });
   if (!latest) return ctx.reply('⚠️ Tidak ada data lokasi.');
-  ctx.reply(msg);
-  ctx.replyWithLocation(latest.latitude, latest.longitude);
+
+  const msg = `📍 Lokasi Terakhir Sepeda Motor Anda:\n\n🕒 ${latest.waktu.toLocaleString()}\n📌 Latitude: ${latest.latitude}\n📌 Longitude: ${latest.longitude}`;
+  await ctx.reply(msg);
+  await ctx.replyWithLocation(latest.latitude, latest.longitude);
 });
 
 // === /riwayat command ===
@@ -94,17 +113,6 @@ bot.command('riwayat', async (ctx) => {
   });
   ctx.reply(msg);
 });
-
-// === Launch bot (with conflict handling) ===
-bot.launch()
-  .then(() => console.log('🤖 Telegram Bot started'))
-  .catch((err) => {
-    if (err.description?.includes('Conflict')) {
-      console.error('❗ Bot conflict: another instance is running.');
-    } else {
-      console.error('❌ Telegram Bot Error:', err.message);
-    }
-  });
 
 // === Graceful shutdown ===
 process.once('SIGINT', () => bot.stop('SIGINT'));
