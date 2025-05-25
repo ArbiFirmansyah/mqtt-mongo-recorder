@@ -27,7 +27,7 @@ const mqttClient = mqtt.connect({
 mqttClient.on('connect', () => {
   console.log('📡 MQTT Connected');
   mqttClient.subscribe('esp32/gps');
-  mqttClient.subscribe('esp32/getar');
+  mqttClient.subscribe('esp32/alarm');
 });
 
 mqttClient.on('message', async (topic, message) => {
@@ -38,7 +38,7 @@ mqttClient.on('message', async (topic, message) => {
       if (typeof data.latitude === 'number' && typeof data.longitude === 'number') {
         await new GpsData(data).save();
       }
-    } else if (topic === 'esp32/getar' && data.getar) {
+    } else if (topic === 'esp32/alarm' && data.alarm) {
       for (let id of activeUsers) {
         bot.telegram.sendMessage(id, '🚨 Deteksi getaran terdeteksi! Periksa sepeda motor Anda!');
       }
