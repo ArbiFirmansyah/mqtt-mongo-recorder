@@ -94,7 +94,7 @@ bot.command('riwayat', async (ctx) => {
 });
 
 bot.command('alarm_mati', async (ctx) => {
-  mqttClient.publish('esp32/alarm', 'mati');
+  mqttClient.publish('esp32/alarm', 'false');
   ctx.reply('🔕 Alarm dimatikan.');
 });
 
