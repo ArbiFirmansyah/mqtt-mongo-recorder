@@ -37,12 +37,11 @@ mqttClient.on('message', async (topic, message) => {
     if (topic === 'esp32/gps') {
       if (typeof data.latitude === 'number' && typeof data.longitude === 'number') {
         await new GpsData(data).save();
-        const latest = await GpsData.findOne().sort({ waktu: -1 });
-        if (!latest) return ctx.reply('⚠️ Tidak ada data lokasi.');
-        await ctx.reply(`📍 Lokasi terakhir:
-        🕒 ${latest.waktu.toLocaleString()}
-        📌 Lat: ${latest.latitude}, Long: ${latest.longitude}`);
-        await ctx.replyWithLocation(latest.latitude, latest.longitude);
+        for (let id of activeUsers) {
+        const waktu = new Date().toLocaleString();
+        await bot.telegram.sendMessage(id, `📍 Lokasi terbaru:\n🕒 ${waktu}\n📌 Lat: ${data.latitude}, Long: ${data.longitude}`);
+        await bot.telegram.sendLocation(id, data.latitude, data.longitude);
+        }
       }
     } else if (topic === 'esp32/alarm' && data.alarm) {
       for (let id of activeUsers) {
