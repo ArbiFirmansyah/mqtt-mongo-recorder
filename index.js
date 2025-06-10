@@ -49,11 +49,10 @@ mqttClient.on('message', async (topic, message) => {
         bot.telegram.sendMessage(id, '🚨 Deteksi getaran terdeteksi! Periksa sepeda motor Anda!');
       }
     } else if (topic === 'esp32/notifikasi') {
-      for (let id of activeUsers) {
-        ctx.reply(`ℹ️ ${data}`);
-      }
-    }
-
+       for (let id of activeUsers) {
+         bot.telegram.sendMessage(id, `ℹ️ ${data}`);
+       }
+     }
   } catch (err) {
     console.error('❌ Error:', err.message);
   }
