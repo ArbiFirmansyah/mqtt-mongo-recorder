@@ -50,7 +50,7 @@ mqttClient.on('message', async (topic, message) => {
       }
     } else if (topic === 'esp32/notifikasi') {
       for (let id of activeUsers) {
-        bot.telegram.sendMessage(id, `ℹ️ ${data}`);
+        ctx.reply(`ℹ️ ${data}`);
       }
     }
 
@@ -109,15 +109,15 @@ bot.command('alarm_mati', async (ctx) => {
   ctx.reply('🔕 Alarm dimatikan.');
 });
 
-bot.command('hidupkan_alat', (ctx) => {
-  mqttClient.publish('esp32/alarm', 'hidupkan');
-  ctx.reply('✅ Perintah dikirim untuk menghidupkan alat.');
-});
+// bot.command('hidupkan_alat', (ctx) => {
+//   mqttClient.publish('esp32/alarm', 'hidupkan');
+//   ctx.reply('✅ Perintah dikirim untuk menghidupkan alat.');
+// });
 
-bot.command('matikan_alat', (ctx) => {
-  mqttClient.publish('esp32/alarm', 'matikan');
-  ctx.reply('🛑 Perintah dikirim untuk mematikan alat.');
-});
+// bot.command('matikan_alat', (ctx) => {
+//   mqttClient.publish('esp32/alarm', 'matikan');
+//   ctx.reply('🛑 Perintah dikirim untuk mematikan alat.');
+// });
 
 
 // Start bot
