@@ -32,6 +32,7 @@ mqttClient.on('connect', () => {
 });
 
 mqttClient.on('message', async (topic, message) => {
+ const text = message.toString();
   try {
     const data = JSON.parse(message.toString());
 
@@ -50,7 +51,7 @@ mqttClient.on('message', async (topic, message) => {
       }
     } else if (topic === 'esp32/notifikasi') {
        for (let id of activeUsers) {
-         bot.telegram.sendMessage(id, `ℹ️ ${data}`);
+         bot.telegram.sendMessage(id, `ℹ️ ${text}`);
        }
      }
   } catch (err) {
