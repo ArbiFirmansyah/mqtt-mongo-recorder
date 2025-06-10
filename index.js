@@ -32,32 +32,39 @@ mqttClient.on('connect', () => {
 });
 
 mqttClient.on('message', async (topic, message) => {
- const text = message.toString();
-  try {
-    const data = JSON.parse(message.toString());
+  const text = message.toString();
 
+  try {
     if (topic === 'esp32/gps') {
+      const data = JSON.parse(text);
       if (typeof data.latitude === 'number' && typeof data.longitude === 'number') {
         await new GpsData(data).save();
         for (let id of activeUsers) {
-        const waktu = new Date().toLocaleString();
-        await bot.telegram.sendMessage(id, `📍 Lokasi terbaru:\n🕒 ${waktu}\n📌 Lat: ${data.latitude}, Long: ${data.longitude}`);
-        await bot.telegram.sendLocation(id, data.latitude, data.longitude);
+          const waktu = new Date().toLocaleString();
+          await bot.telegram.sendMessage(id, `📍 Lokasi terbaru:\n🕒 ${waktu}\n📌 Lat: ${data.latitude}, Long: ${data.longitude}`);
+          await bot.telegram.sendLocation(id, data.latitude, data.longitude);
         }
       }
-    } else if (topic === 'esp32/alarm' && data.alarm) {
-      for (let id of activeUsers) {
-        bot.telegram.sendMessage(id, '🚨 Deteksi getaran terdeteksi! Periksa sepeda motor Anda!');
+
+    } else if (topic === 'esp32/alarm') {
+      const data = JSON.parse(text);
+      if (data.alarm) {
+        for (let id of activeUsers) {
+          await bot.telegram.sendMessage(id, '🚨 Deteksi getaran terdeteksi! Periksa sepeda motor Anda!');
+        }
       }
+
     } else if (topic === 'esp32/notifikasi') {
-       for (let id of activeUsers) {
-         bot.telegram.sendMessage(id, `ℹ️ ${text}`);
-       }
-     }
+      for (let id of activeUsers) {
+        await bot.telegram.sendMessage(id, `ℹ️ ${text}`);
+      }
+    }
+
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error('❌ Error saat memproses pesan MQTT:', err.message);
   }
 });
+
 
 // Telegram Bot
 const bot = new Telegraf(process.env.BOT_TOKEN);
