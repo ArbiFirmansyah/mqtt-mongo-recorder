@@ -47,10 +47,17 @@ mqttClient.on('message', async (topic, message) => {
       }
 
     } else if (topic === 'esp32/alarm') {
-      const data = JSON.parse(text);
-      if (data.alarm) {
+      // Jika JSON, maka parse
+      if (text.trim().startsWith("{")) {
+        const data = JSON.parse(text);
+        if (data.alarm) {
+          for (let id of activeUsers) {
+            await bot.telegram.sendMessage(id, '🚨 Deteksi getaran terdeteksi! Periksa sepeda motor Anda!');
+          }
+        }
+      } else if (text === "false") {
         for (let id of activeUsers) {
-          await bot.telegram.sendMessage(id, '🚨 Deteksi getaran terdeteksi! Periksa sepeda motor Anda!');
+          await bot.telegram.sendMessage(id, '🔕 Alarm dimatikan dari Telegram.');
         }
       }
 
