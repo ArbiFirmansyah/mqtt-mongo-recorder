@@ -8,6 +8,12 @@ dotenv.config();
 // MongoDB
 mongoose.connect(process.env.MONGODB_URI).then(() => console.log('✅ MongoDB Connected'));
 
+function toWIBString(date = new Date()) {
+  const offsetMs = 7 * 60 * 60 * 1000; // GMT+7 dalam ms
+  const wibDate = new Date(date.getTime() + offsetMs);
+  return wibDate.toISOString().replace('T', ' ').substring(0, 19); // "YYYY-MM-DD HH:mm:ss"
+}
+
 const gpsSchema = new mongoose.Schema({
   latitude: Number,
   longitude: Number,
@@ -40,7 +46,7 @@ mqttClient.on('message', async (topic, message) => {
       if (typeof data.latitude === 'number' && typeof data.longitude === 'number') {
         await new GpsData(data).save();
         for (let id of activeUsers) {
-          const waktu = new Date().toLocaleString();
+          const waktu = toWIBString();
           await bot.telegram.sendMessage(id, `📍 Lokasi terbaru:\n🕒 ${waktu}\n📌 Lat: ${data.latitude}, Long: ${data.longitude}`);
           await bot.telegram.sendLocation(id, data.latitude, data.longitude);
         }
@@ -95,8 +101,8 @@ bot.command('lokasi', async (ctx) => {
   const latest = await GpsData.findOne().sort({ waktu: -1 });
   if (!latest) return ctx.reply('⚠️ Tidak ada data lokasi.');
   await ctx.reply(`📍 Lokasi terakhir:
-🕒 ${latest.waktu.toLocaleString()}
-📌 Lat: ${latest.latitude}, Long: ${latest.longitude}`);
+  📌 Lat: ${latest.latitude}, Long: ${latest.longitude}
+  🕒 ${toWIBString(latest.waktu)}`);
   await ctx.replyWithLocation(latest.latitude, latest.longitude);
 });
 
@@ -106,7 +112,7 @@ bot.command('riwayat', async (ctx) => {
   if (!data.length) return ctx.reply('⚠️ Tidak ada riwayat.');
   let msg = '📍 Riwayat Lokasi:\n\n';
   data.forEach((d, i) => {
-    msg += `${i + 1}. Lat: ${d.latitude}, Long: ${d.longitude} 🕒 ${d.waktu.toLocaleString()}\n`;
+    msg += `${i + 1}. Lat: ${d.latitude}, Long: ${d.longitude} 🕒 ${toWIBString(latest.waktu)}\n`;
   });
   ctx.reply(msg);
 });
