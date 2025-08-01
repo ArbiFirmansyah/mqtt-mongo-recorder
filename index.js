@@ -102,7 +102,7 @@ bot.command('lokasi', async (ctx) => {
   if (!latest) return ctx.reply('⚠️ Tidak ada data lokasi.');
   await ctx.reply(`📍 Lokasi terakhir:
   📌 Lat: ${latest.latitude}, Long: ${latest.longitude}
-  🕒 ${toWIBString(latest.waktu)}`);
+  🕒 ${toWIBString(d.waktu)}`);
   await ctx.replyWithLocation(latest.latitude, latest.longitude);
 });
 
@@ -112,7 +112,7 @@ bot.command('riwayat', async (ctx) => {
   if (!data.length) return ctx.reply('⚠️ Tidak ada riwayat.');
   let msg = '📍 Riwayat Lokasi:\n\n';
   data.forEach((d, i) => {
-    msg += `${i + 1}. Lat: ${d.latitude}, Long: ${d.longitude} 🕒 ${toWIBString(latest.waktu)}\n`;
+    msg += `${i + 1}. Lat: ${d.latitude}, Long: ${d.longitude} 🕒 ${toWIBString(d.waktu)}\n`;
   });
   ctx.reply(msg);
 });
