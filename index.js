@@ -102,7 +102,7 @@ bot.command('lokasi', async (ctx) => {
   if (!latest) return ctx.reply('⚠️ Tidak ada data lokasi.');
   await ctx.reply(`📍 Lokasi terakhir:
   📌 Lat: ${latest.latitude}, Long: ${latest.longitude}
-  🕒 ${toWIBString(d.waktu)}`);
+  🕒 ${toWIBString(latest.waktu)}`);
   await ctx.replyWithLocation(latest.latitude, latest.longitude);
 });
 
